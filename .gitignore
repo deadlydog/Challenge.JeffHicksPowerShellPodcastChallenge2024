@@ -1,6 +1,9 @@
 # Created by https://www.toptal.com/developers/gitignore/api/powershell,visualstudiocode,visualstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=powershell,visualstudiocode,visualstudio
 
+# Custom additions
+*/GitHubIssueStats.md
+
 ### PowerShell ###
 # Exclude packaged modules
 *.zip

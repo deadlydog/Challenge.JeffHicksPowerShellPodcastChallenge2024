@@ -7,7 +7,10 @@ Param
 
 	[Parameter(Mandatory = $false, HelpMessage = 'The name of the repository to query. e.g. PowerShell.')]
 	[ValidateNotNullOrEmpty()]
-	[string] $RepositoryName = 'PowerShell'
+	[string] $RepositoryName = 'PowerShell',
+
+	[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create.')]
+	[string] $outputMarkdownFilePath = "$PSScriptRoot\GitHubIssueStats.md"
 )
 
 Process
@@ -20,7 +23,7 @@ Process
 	[int] $totalNumberOfOpenIssues = $openIssues.Count
 	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel -labelsDictionary $labelsDictionary -totalNumberOfOpenIssues $totalNumberOfOpenIssues -baseRepoUrl $gitHubRepoBaseUrl
 
-	Write-LabelStats -issueStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl
+	Write-LabelStats -labelStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl -markdownFilePath $outputMarkdownFilePath
 }
 
 Begin
@@ -81,13 +84,30 @@ Begin
 			$labelStats += $stats
 		}
 
-		return $labelStats
+		[PSCustomObject[]] $orderedLabelStats = $labelStats | Sort-Object -Property NumberOfIssuesWithThisLabel -Descending
+		return $orderedLabelStats
 	}
 
-	function Write-LabelStats([PSCustomObject[]] $issueStats, [string] $baseRepoUrl)
+	function Write-LabelStats([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath)
 	{
-		Write-Output "The number of issues by label for the repository '$baseRepoUrl':"
-		$issueStats | Format-Table -AutoSize
+		[System.Text.StringBuilder] $stringBuilder = [System.Text.StringBuilder]::new()
+		$stringBuilder.AppendLine("# Open Issues Stats For $RepositoryOwner/$RepositoryName") > $null
+		$stringBuilder.AppendLine() > $null
+		$stringBuilder.AppendLine("Repository: [$RepositoryOwner/$RepositoryName]($baseRepoUrl)") > $null
+		$stringBuilder.AppendLine() > $null
+		$stringBuilder.AppendLine("Total number of open issues: $totalNumberOfOpenIssues") > $null
+		$stringBuilder.AppendLine() > $null
+		$stringBuilder.AppendLine("## Open Issues By Label") > $null
+		$stringBuilder.AppendLine() > $null
+
+		$stringBuilder.AppendLine("| Label | Number of Open Issues | Percentage of Open Issues | Open Issues URL |") > $null
+		foreach ($labelStat in $labelStats)
+		{
+			$stringBuilder.AppendLine("| $($labelStat.LabelName) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% | [Open Issues]($($labelStat.LabelOpenIssuesUrl)) |") > $null
+		}
+
+		Out-File -FilePath $markdownFilePath -InputObject $stringBuilder.ToString() -Force
+		Show-Markdown -Path $markdownFilePath
 	}
 
 	# Display the time that this script started running.
