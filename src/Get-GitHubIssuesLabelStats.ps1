@@ -86,7 +86,20 @@ Begin
 		[PSCustomObject[]] $results = @()
 		do
 		{
-			$response = Invoke-WebRequest -Uri $uri -Headers $headers
+			$response = $null
+			try
+			{
+				$response = Invoke-WebRequest -Uri $uri -Headers $headers -ErrorAction SilentlyContinue
+				if ($response.StatusCode -ne 200)
+				{
+					throw "The status code returned was '$($response.StatusCode)'."
+				}
+			}
+			catch
+			{
+				throw "An error occurred while trying to retrieve the open issues from the GitHub repository. Error message: $($_.Exception.Message)"
+			}
+
 			$results += $response.Content | ConvertFrom-Json -Depth 99
 
 			[string] $uri = $response.RelationLink['next']
