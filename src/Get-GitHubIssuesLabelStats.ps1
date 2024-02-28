@@ -1,5 +1,21 @@
 function Get-GitHubIssuesLabelStats
 {
+	<#
+	.SYNOPSIS
+		Retrieves all open issues for a GitHub repository and groups them by label, then calculates the label stats, optionally writes them to a markdown file, and then returns them.
+
+	.DESCRIPTION
+		Retrieves all open issues for a GitHub repository and groups them by label, then calculates the label stats, optionally writes them to a markdown file, and then returns them.
+
+	.EXAMPLE
+		PS> Get-GitHubIssuesLabelStats -RepositoryOwner deadlydog -RepositoryName PowerShell.tiPS -OutputMarkdownFilePath "$PSScriptRoot\GitHubIssuesLabelStats.md"
+
+		Retrieves the open issues for the deadlydog/PowerShell.tiPS repository, calculates the label stats, writes the stats to the specified markdown file, and returns the results.
+
+	.OUTPUTS
+		An array of PSCustomObjects containing the label stats is returned.
+		The label stats include the label name, the number of open issues with that label, and the percentage of open issues with that label.
+	#>
 	[CmdletBinding()]
 	Param
 	(
@@ -12,7 +28,8 @@ function Get-GitHubIssuesLabelStats
 		[string] $RepositoryName,
 
 		[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create. If not specified, GitHubIssuesLabelStats.md will be created in the same directory as this script.')]
-		[string] $OutputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md",
+		[ValidateNotNullOrEmpty()]
+		[string] $OutputMarkdownFilePath,
 
 		[Parameter(Mandatory = $false, HelpMessage = 'The maximum number of labels to show in the output markdown file. Default value is 25.')]
 		[ValidateRange(1, 999999)]
@@ -40,17 +57,19 @@ function Get-GitHubIssuesLabelStats
 		}
 		[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel @getLabelsParams
 
-		Write-Information "Writing the label stats to the markdown file..."
-		[hashtable] $writeLabelsParams = @{
-			labelStats = $labelStats
-			baseRepoUrl = $gitHubRepoBaseUrl
-			markdownFilePath = $OutputMarkdownFilePath
-			totalNumberOfOpenIssues = $totalNumberOfOpenIssues
-			maxLabelsToShow = $MaximumNumberOfLabelsToShow
+		[bool] $markdownFilePathWasProvided = -Not [string]::IsNullOrWhiteSpace($OutputMarkdownFilePath)
+		if ($markdownFilePathWasProvided)
+		{
+			Write-Information "Writing the label stats to the markdown file '$OutputMarkdownFilePath'..."
+			[hashtable] $writeLabelsParams = @{
+				labelStats = $labelStats
+				baseRepoUrl = $gitHubRepoBaseUrl
+				markdownFilePath = $OutputMarkdownFilePath
+				totalNumberOfOpenIssues = $totalNumberOfOpenIssues
+				maxLabelsToShow = $MaximumNumberOfLabelsToShow
+			}
+			Write-LabelStatsToMarkdownFile @writeLabelsParams
 		}
-		Write-LabelStatsToMarkdownFile @writeLabelsParams
-
-		Write-Information "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
 
 		return $labelStats
 	}
