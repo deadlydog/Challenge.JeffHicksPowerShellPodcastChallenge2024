@@ -124,7 +124,7 @@ Begin
 		[int] $numberOfLabels = $labelStats.Count
 
 		[System.Text.StringBuilder] $stringBuilder = [System.Text.StringBuilder]::new()
-		$stringBuilder.AppendLine("# Open Issues Stats For $RepositoryOwner/$RepositoryName") > $null
+		$stringBuilder.AppendLine("# Open Issues Label Stats For $RepositoryOwner/$RepositoryName") > $null
 		$stringBuilder.AppendLine() > $null
 		$stringBuilder.AppendLine("Repository: [$RepositoryOwner/$RepositoryName]($baseRepoUrl)") > $null
 		$stringBuilder.AppendLine() > $null
