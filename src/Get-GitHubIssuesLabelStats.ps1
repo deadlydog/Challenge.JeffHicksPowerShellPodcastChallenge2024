@@ -16,13 +16,7 @@ function Get-GitHubIssuesLabelStats
 
 		[Parameter(Mandatory = $false, HelpMessage = 'The maximum number of labels to show in the output markdown file. Default value is 25.')]
 		[ValidateRange(1, 999999)]
-		[int] $MaximumNumberOfLabelsToShow = 25,
-
-		[Parameter(Mandatory = $false, HelpMessage = 'If specified, the results table will be written to the console.')]
-		[switch] $WriteResultsTableToConsole,
-
-		[Parameter(Mandatory = $false, HelpMessage = 'If specified, the output markdown file will be opened in the default browser.')]
-		[switch] $ShowMarkdownInBrowser
+		[int] $MaximumNumberOfLabelsToShow = 25
 	)
 
 	Process
@@ -56,19 +50,9 @@ function Get-GitHubIssuesLabelStats
 		}
 		Write-LabelStatsToMarkdownFile @writeLabelsParams
 
-		if ($ShowMarkdownInBrowser)
-		{
-			Write-Information "Opening the output markdown file in the default browser..."
-			Show-Markdown -Path $OutputMarkdownFilePath -UseBrowser
-		}
+		Write-Information "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
 
-		if ($WriteResultsTableToConsole)
-		{
-			Write-Information "Writing the label stats to the console..."
-			$labelStats | Format-Table -AutoSize
-		}
-
-		Write-Output "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
+		return $labelStats
 	}
 
 	Begin
