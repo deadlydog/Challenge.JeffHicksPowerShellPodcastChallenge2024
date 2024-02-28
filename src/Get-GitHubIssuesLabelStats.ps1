@@ -33,7 +33,7 @@ Process
 
 	Write-LabelStatsToMarkdownFile -labelStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl -markdownFilePath $OutputMarkdownFilePath -maximumLabelsToShow $MaximumNumberOfLabelsToShow
 
-	Write-Output "The open issues label stats have been written to '$OutputMarkdownFilePath'."
+	Write-Output "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
 
 	if ($ShowMarkdownInBrowser)
 	{
