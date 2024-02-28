@@ -1,16 +1,20 @@
 [CmdletBinding()]
 Param
 (
-	[Parameter(Mandatory = $false, HelpMessage = 'The owner of the repository to query. e.g. PowerShell.')]
+	[Parameter(Mandatory = $true, HelpMessage = 'The owner of the GitHub repository to query. e.g. deadlydog.')]
 	[ValidateNotNullOrEmpty()]
 	[string] $RepositoryOwner = 'PowerShell',
 
-	[Parameter(Mandatory = $false, HelpMessage = 'The name of the repository to query. e.g. PowerShell.')]
+	[Parameter(Mandatory = $true, HelpMessage = 'The name of the GitHub repository to query. e.g. PowerShell.tiPS')]
 	[ValidateNotNullOrEmpty()]
 	[string] $RepositoryName = 'PowerShell',
 
 	[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create. If not specified, GitHubIssueLabelStats.md will be created in the same directory as this script.')]
-	[string] $outputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md"
+	[string] $OutputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md",
+
+	[Parameter(Mandatory = $false, HelpMessage = 'The maximum number of labels to show in the output markdown file. Default value is 25.')]
+	[ValidateRange(1, 999999)]
+	[int] $MaximumNumberOfLabelsToShow = 25
 )
 
 Process
@@ -23,7 +27,10 @@ Process
 	[int] $totalNumberOfOpenIssues = $openIssues.Count
 	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel -labelsDictionary $labelsDictionary -totalNumberOfOpenIssues $totalNumberOfOpenIssues -baseRepoUrl $gitHubRepoBaseUrl
 
-	Write-LabelStats -labelStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl -markdownFilePath $outputMarkdownFilePath
+	Write-LabelStatsToMarkdownFile -labelStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl -markdownFilePath $OutputMarkdownFilePath -maximumLabelsToShow $MaximumNumberOfLabelsToShow
+
+	Write-Output "The open issues label stats have been written to '$OutputMarkdownFilePath'."
+	Show-Markdown -Path $OutputMarkdownFilePath -UseBrowser
 }
 
 Begin
@@ -88,7 +95,7 @@ Begin
 		return $orderedLabelStats
 	}
 
-	function Write-LabelStats([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath)
+	function Write-LabelStatsToMarkdownFile([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath, [int] $maximumLabelsToShow)
 	{
 		[System.Text.StringBuilder] $stringBuilder = [System.Text.StringBuilder]::new()
 		$stringBuilder.AppendLine("# Open Issues Stats For $RepositoryOwner/$RepositoryName") > $null
@@ -102,13 +109,20 @@ Begin
 
 		$stringBuilder.AppendLine("| Label | Number of Open Issues | Percentage of Open Issues | Open Issues URL |") > $null
 		$stringBuilder.AppendLine("| ----- | --------------------- | ------------------------- | --------------- |") > $null
+		[int] $numberOfLabelsShown = 0
 		foreach ($labelStat in $labelStats)
 		{
 			$stringBuilder.AppendLine("| $($labelStat.LabelName) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% | [Label's Open Issues]($($labelStat.LabelOpenIssuesUrl)) |") > $null
+
+			# Make sure we don't show more labels than the maximum number specified.
+			$numberOfLabelsShown++
+			if ($numberOfLabelsShown -ge $maximumLabelsToShow)
+			{
+				break
+			}
 		}
 
 		Out-File -FilePath $markdownFilePath -InputObject $stringBuilder.ToString() -Force -NoNewline
-		Show-Markdown -Path $markdownFilePath
 	}
 
 	# Display the time that this script started running.

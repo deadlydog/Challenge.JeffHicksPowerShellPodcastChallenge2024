@@ -4,7 +4,8 @@
 $parameters = @{
 	RepositoryOwner = 'PowerShell'
 	RepositoryName = 'PowerShell'
-	outputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md"
+	OutputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md"
+	MaximumNumberOfLabelsToShow = 25
 }
 
 # Invoke the script with the parameters.
