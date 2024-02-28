@@ -7,7 +7,10 @@ This repo is my implementation of [Jeff Hicks' PowerShell Podcast 2024 challenge
 Either clone this repo to your local machine, or simply [open it in GitHub Codespaces](https://codespaces.new/deadlydog/Challenge.JeffHicksPowerShellPodcastChallenge2024).
 
 Open the [Invoke-GetGitHubIssuesLabelStats.ps1](/src/Invoke-GetGitHubIssuesLabelStats.ps1) script and run it.
-This will generate a markdown file with the label statistics for the PowerShell repository.
+This will generate a markdown file in the [src](/src) directory with the label statistics for the PowerShell repository.
+You can then preview the markdown file in VS Code.
+If not using GitHub Codespaces, it will also open the markdown file in your default web browser.
+
 Feel free to change the parameters to test it with different repositories.
 
 ## ? The challenge
