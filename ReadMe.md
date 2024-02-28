@@ -2,7 +2,14 @@
 
 My implementation of [Jeff Hicks' PowerShell Podcast 2024 challenge](https://gist.github.com/jdhitsolutions/36f16e9b2d89353cfa93edc8e4b5b3c3).
 
-## The challenge
+## 🚀 Running the code
+
+Open the [Invoke-GetGitHubIssuesLabelStats.ps1](/src/Invoke-GetGitHubIssuesLabelStats.ps1) script and run it.
+This will generate a markdown file with the label statistics for the PowerShell repository.
+If the `ShowMarkdownInBrowser` parameter is set to `$true`, the markdown file will be opened in the default browser.
+Feel free to change the parameters to test it with different repositories.
+
+## ? The challenge
 
 Below is a copy of the challenge from Jeff's Gist, in case it disappears in the future.
 
