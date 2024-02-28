@@ -9,8 +9,8 @@ Param
 	[ValidateNotNullOrEmpty()]
 	[string] $RepositoryName = 'PowerShell',
 
-	[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create.')]
-	[string] $outputMarkdownFilePath = "$PSScriptRoot\GitHubIssueStats.md"
+	[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create. If not specified, GitHubIssueLabelStats.md will be created in the same directory as this script.')]
+	[string] $outputMarkdownFilePath = "$PSScriptRoot\GitHubIssueLabelStats.md"
 )
 
 Process
