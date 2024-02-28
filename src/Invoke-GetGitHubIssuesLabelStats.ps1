@@ -15,8 +15,11 @@ $parameters = @{
 Write-Information "Invoking the function with the given parameters."
 $results = Get-GitHubIssuesLabelStats @parameters -InformationAction Continue
 
-Write-Information "Opening the output markdown file in the default browser."
-Show-Markdown -Path $markdownFilePath -UseBrowser
-
 Write-Information "Writing the label stats to the console."
 $results | Format-Table -AutoSize
+
+if (Test-Path -Path $markdownFilePath -PathType Leaf)
+{
+	Write-Information "Opening the output markdown file in the default browser."
+	Show-Markdown -Path $markdownFilePath -UseBrowser
+}
