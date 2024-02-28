@@ -1,106 +1,83 @@
-[CmdletBinding()]
-Param
-(
-	[Parameter(Mandatory = $true, HelpMessage = 'The owner of the GitHub repository to query. e.g. deadlydog.')]
-	[ValidateNotNullOrEmpty()]
-	[string] $RepositoryOwner = 'PowerShell',
-
-	[Parameter(Mandatory = $true, HelpMessage = 'The name of the GitHub repository to query. e.g. PowerShell.tiPS')]
-	[ValidateNotNullOrEmpty()]
-	[string] $RepositoryName = 'PowerShell',
-
-	[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create. If not specified, GitHubIssuesLabelStats.md will be created in the same directory as this script.')]
-	[string] $OutputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md",
-
-	[Parameter(Mandatory = $false, HelpMessage = 'The maximum number of labels to show in the output markdown file. Default value is 25.')]
-	[ValidateRange(1, 999999)]
-	[int] $MaximumNumberOfLabelsToShow = 25,
-
-	[Parameter(Mandatory = $false, HelpMessage = 'If specified, the results table will be written to the console.')]
-	[switch] $WriteResultsTableToConsole,
-
-	[Parameter(Mandatory = $false, HelpMessage = 'If specified, the output markdown file will be opened in the default browser.')]
-	[switch] $ShowMarkdownInBrowser
-)
-
-Process
+function Get-GitHubIssuesLabelStats
 {
-	[string] $gitHubRepoBaseUrl = "https://github.com/$RepositoryOwner/$RepositoryName"
-	Write-Information "Ensuring the GitHub repository '$gitHubRepoBaseUrl' is valid and we have access to it..."
-	Test-GitHubRepository -repoUrl $gitHubRepoBaseUrl
+	[CmdletBinding()]
+	Param
+	(
+		[Parameter(Mandatory = $true, HelpMessage = 'The owner of the GitHub repository to query. e.g. deadlydog.')]
+		[ValidateNotNullOrEmpty()]
+		[string] $RepositoryOwner,
 
-	Write-Information "Retrieving all open GitHub issues for the repo..."
-	[PSCustomObject[]] $openIssues = Get-GitHubReposOpenIssues -owner $RepositoryOwner -repo $RepositoryName
-	[int] $totalNumberOfOpenIssues = $openIssues.Count
+		[Parameter(Mandatory = $true, HelpMessage = 'The name of the GitHub repository to query. e.g. PowerShell.tiPS')]
+		[ValidateNotNullOrEmpty()]
+		[string] $RepositoryName,
 
-	Write-Information "Grouping the open issues by label..."
-	[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
+		[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create. If not specified, GitHubIssuesLabelStats.md will be created in the same directory as this script.')]
+		[string] $OutputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md",
 
-	Write-Information "Calculating the label stats..."
-	[hashtable] $getLabelsParams = @{
-		labelsDictionary = $labelsDictionary
-		totalNumberOfOpenIssues = $totalNumberOfOpenIssues
-		baseRepoUrl = $gitHubRepoBaseUrl
-	}
-	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel @getLabelsParams
+		[Parameter(Mandatory = $false, HelpMessage = 'The maximum number of labels to show in the output markdown file. Default value is 25.')]
+		[ValidateRange(1, 999999)]
+		[int] $MaximumNumberOfLabelsToShow = 25,
 
-	Write-Information "Writing the label stats to the markdown file..."
-	[hashtable] $writeLabelsParams = @{
-		labelStats = $labelStats
-		baseRepoUrl = $gitHubRepoBaseUrl
-		markdownFilePath = $OutputMarkdownFilePath
-		totalNumberOfOpenIssues = $totalNumberOfOpenIssues
-		maxLabelsToShow = $MaximumNumberOfLabelsToShow
-	}
-	Write-LabelStatsToMarkdownFile @writeLabelsParams
+		[Parameter(Mandatory = $false, HelpMessage = 'If specified, the results table will be written to the console.')]
+		[switch] $WriteResultsTableToConsole,
 
-	if ($ShowMarkdownInBrowser)
+		[Parameter(Mandatory = $false, HelpMessage = 'If specified, the output markdown file will be opened in the default browser.')]
+		[switch] $ShowMarkdownInBrowser
+	)
+
+	Process
 	{
-		Write-Information "Opening the output markdown file in the default browser..."
-		Show-Markdown -Path $OutputMarkdownFilePath -UseBrowser
-	}
+		[string] $gitHubRepoBaseUrl = "https://github.com/$RepositoryOwner/$RepositoryName"
+		Write-Information "Ensuring the GitHub repository '$gitHubRepoBaseUrl' is valid and we have access to it..."
+		Test-GitHubRepository -repoUrl $gitHubRepoBaseUrl
 
-	if ($WriteResultsTableToConsole)
-	{
-		Write-Information "Writing the label stats to the console..."
-		$labelStats | Format-Table -AutoSize
-	}
+		Write-Information "Retrieving all open GitHub issues for the repo..."
+		[PSCustomObject[]] $openIssues = Get-GitHubReposOpenIssues -owner $RepositoryOwner -repo $RepositoryName
+		[int] $totalNumberOfOpenIssues = $openIssues.Count
 
-	Write-Output "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
-}
+		Write-Information "Grouping the open issues by label..."
+		[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
 
-Begin
-{
-	function Test-GitHubRepository([string] $repoUrl)
-	{
-		try
-		{
-			$response = Invoke-WebRequest -Uri $repoUrl -UseBasicParsing -ErrorAction SilentlyContinue
-			if ($response.StatusCode -ne 200)
-			{
-				throw "The status code returned was '$($response.StatusCode)'."
-			}
+		Write-Information "Calculating the label stats..."
+		[hashtable] $getLabelsParams = @{
+			labelsDictionary = $labelsDictionary
+			totalNumberOfOpenIssues = $totalNumberOfOpenIssues
+			baseRepoUrl = $gitHubRepoBaseUrl
 		}
-		catch
-		{
-			throw "The GitHub repository at '$repoUrl' could not be found or we do not have permission to access it. Please check the owner and repository name and try again. Error message: $($_.Exception.Message)"
-		}
-	}
+		[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel @getLabelsParams
 
-	function Get-GitHubReposOpenIssues([string] $owner, [string] $repo)
-	{
-		[string] $uri = "https://api.github.com/repos/$owner/$repo/issues?state=open&per_page=100"
-		[hashtable] $headers = @{
-			'Accept' = 'application/json'
+		Write-Information "Writing the label stats to the markdown file..."
+		[hashtable] $writeLabelsParams = @{
+			labelStats = $labelStats
+			baseRepoUrl = $gitHubRepoBaseUrl
+			markdownFilePath = $OutputMarkdownFilePath
+			totalNumberOfOpenIssues = $totalNumberOfOpenIssues
+			maxLabelsToShow = $MaximumNumberOfLabelsToShow
+		}
+		Write-LabelStatsToMarkdownFile @writeLabelsParams
+
+		if ($ShowMarkdownInBrowser)
+		{
+			Write-Information "Opening the output markdown file in the default browser..."
+			Show-Markdown -Path $OutputMarkdownFilePath -UseBrowser
 		}
 
-		[PSCustomObject[]] $results = @()
-		do
+		if ($WriteResultsTableToConsole)
 		{
-			$response = $null
+			Write-Information "Writing the label stats to the console..."
+			$labelStats | Format-Table -AutoSize
+		}
+
+		Write-Output "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
+	}
+
+	Begin
+	{
+		function Test-GitHubRepository([string] $repoUrl)
+		{
 			try
 			{
-				$response = Invoke-WebRequest -Uri $uri -Headers $headers -ErrorAction SilentlyContinue
+				$response = Invoke-WebRequest -Uri $repoUrl -UseBasicParsing -ErrorAction SilentlyContinue
 				if ($response.StatusCode -ne 200)
 				{
 					throw "The status code returned was '$($response.StatusCode)'."
@@ -108,102 +85,128 @@ Begin
 			}
 			catch
 			{
-				throw "An error occurred while trying to retrieve the open issues from the GitHub repository. Error message: $($_.Exception.Message)"
-			}
-
-			$results += $response.Content | ConvertFrom-Json -Depth 99
-
-			[string] $uri = $response.RelationLink['next']
-			[bool] $hasNextPage = -Not [string]::IsNullOrWhiteSpace($uri)
-		} while ($hasNextPage)
-
-		return $results
-	}
-
-	function Get-IssuesGroupedByLabel([PSCustomObject[]] $issues)
-	{
-		[hashtable] $labelsDictionary = @{}
-		$issues | ForEach-Object {
-			$issue = $_
-			$issue.labels | ForEach-Object {
-				$label = $_
-				$labelInfo = @{
-					IssueNumber = $issue.number
-					IssueTitle = $issue.title
-					IssueUrl = $issue.html_url
-					Label = $label.name
-					LabelUrl = $label.url
-				}
-				$labelsDictionary[$label.name] += @($labelInfo)
+				throw "The GitHub repository at '$repoUrl' could not be found or we do not have permission to access it. Please check the owner and repository name and try again. Error message: $($_.Exception.Message)"
 			}
 		}
 
-		return $labelsDictionary
-	}
-
-	function Get-IssueStatsByLabel([hashtable] $labelsDictionary, [int] $totalNumberOfOpenIssues, [string] $baseRepoUrl)
-	{
-		[PSCustomObject[]] $labelStats = @()
-		$labelsDictionary.GetEnumerator() | ForEach-Object {
-			$label = $_
-			$labelName = $label.Name
-			$labelIssues = $label.Value
-
-			$numberOfIssuesWithThisLabel = $labelIssues.Count
-			$percentageOfIssuesWithThisLabel = [math]::Round(($numberOfIssuesWithThisLabel / $totalNumberOfOpenIssues) * 100, 2)
-
-			$labelOpenIssuesUrl = [System.Uri]::EscapeUriString("$baseRepoUrl/issues?q=is:open+is:issue+label:$labelName")
-
-			$stats = [PSCustomObject] @{
-				LabelName = $labelName
-				NumberOfIssuesWithThisLabel = $numberOfIssuesWithThisLabel
-				PercentageOfIssuesWithThisLabel = $percentageOfIssuesWithThisLabel
-				LabelOpenIssuesUrl = $labelOpenIssuesUrl
-			}
-			$labelStats += $stats
-		}
-
-		[PSCustomObject[]] $orderedLabelStats = $labelStats | Sort-Object -Property NumberOfIssuesWithThisLabel -Descending
-		return $orderedLabelStats
-	}
-
-	function Write-LabelStatsToMarkdownFile([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath, [int] $totalNumberOfOpenIssues, [int] $maxLabelsToShow)
-	{
-		[int] $numberOfLabels = $labelStats.Count
-
-		[System.Text.StringBuilder] $stringBuilder = [System.Text.StringBuilder]::new()
-		$stringBuilder.AppendLine("# Open Issues Label Stats For $RepositoryOwner/$RepositoryName") > $null
-		$stringBuilder.AppendLine() > $null
-		$stringBuilder.AppendLine("Repository: [$RepositoryOwner/$RepositoryName]($baseRepoUrl)") > $null
-		$stringBuilder.AppendLine() > $null
-		$stringBuilder.AppendLine("Total number of open issues: $totalNumberOfOpenIssues") > $null
-		$stringBuilder.AppendLine() > $null
-		$stringBuilder.AppendLine("Total number of labels: $numberOfLabels") > $null
-		$stringBuilder.AppendLine() > $null
-		$stringBuilder.AppendLine("## Open Issues By Label") > $null
-		$stringBuilder.AppendLine() > $null
-
-		if ($numberOfLabels -gt $maxLabelsToShow)
+		function Get-GitHubReposOpenIssues([string] $owner, [string] $repo)
 		{
-			$stringBuilder.AppendLine("Note: Only the top $maxLabelsToShow labels are shown here.") > $null
-			$stringBuilder.AppendLine() > $null
-		}
+			[string] $uri = "https://api.github.com/repos/$owner/$repo/issues?state=open&per_page=100"
+			[hashtable] $headers = @{
+				'Accept' = 'application/json'
+			}
 
-		$stringBuilder.AppendLine("| Label | Number of Open Issues | Percentage of Open Issues |") > $null
-		$stringBuilder.AppendLine("| ----- | --------------------- | ------------------------- |") > $null
-		[int] $numberOfLabelsShown = 0
-		foreach ($labelStat in $labelStats)
-		{
-			$stringBuilder.AppendLine("| [$($labelStat.LabelName)]($($labelStat.LabelOpenIssuesUrl)) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% |") > $null
-
-			# Make sure we don't show more labels than the maximum number specified.
-			$numberOfLabelsShown++
-			if ($numberOfLabelsShown -ge $maxLabelsToShow)
+			[PSCustomObject[]] $results = @()
+			do
 			{
-				break
-			}
+				$response = $null
+				try
+				{
+					$response = Invoke-WebRequest -Uri $uri -Headers $headers -ErrorAction SilentlyContinue
+					if ($response.StatusCode -ne 200)
+					{
+						throw "The status code returned was '$($response.StatusCode)'."
+					}
+				}
+				catch
+				{
+					throw "An error occurred while trying to retrieve the open issues from the GitHub repository. Error message: $($_.Exception.Message)"
+				}
+
+				$results += $response.Content | ConvertFrom-Json -Depth 99
+
+				[string] $uri = $response.RelationLink['next']
+				[bool] $hasNextPage = -Not [string]::IsNullOrWhiteSpace($uri)
+			} while ($hasNextPage)
+
+			return $results
 		}
 
-		Out-File -FilePath $markdownFilePath -InputObject $stringBuilder.ToString() -Force -NoNewline
+		function Get-IssuesGroupedByLabel([PSCustomObject[]] $issues)
+		{
+			[hashtable] $labelsDictionary = @{}
+			$issues | ForEach-Object {
+				$issue = $_
+				$issue.labels | ForEach-Object {
+					$label = $_
+					$labelInfo = @{
+						IssueNumber = $issue.number
+						IssueTitle = $issue.title
+						IssueUrl = $issue.html_url
+						Label = $label.name
+						LabelUrl = $label.url
+					}
+					$labelsDictionary[$label.name] += @($labelInfo)
+				}
+			}
+
+			return $labelsDictionary
+		}
+
+		function Get-IssueStatsByLabel([hashtable] $labelsDictionary, [int] $totalNumberOfOpenIssues, [string] $baseRepoUrl)
+		{
+			[PSCustomObject[]] $labelStats = @()
+			$labelsDictionary.GetEnumerator() | ForEach-Object {
+				$label = $_
+				$labelName = $label.Name
+				$labelIssues = $label.Value
+
+				$numberOfIssuesWithThisLabel = $labelIssues.Count
+				$percentageOfIssuesWithThisLabel = [math]::Round(($numberOfIssuesWithThisLabel / $totalNumberOfOpenIssues) * 100, 2)
+
+				$labelOpenIssuesUrl = [System.Uri]::EscapeUriString("$baseRepoUrl/issues?q=is:open+is:issue+label:$labelName")
+
+				$stats = [PSCustomObject] @{
+					LabelName = $labelName
+					NumberOfIssuesWithThisLabel = $numberOfIssuesWithThisLabel
+					PercentageOfIssuesWithThisLabel = $percentageOfIssuesWithThisLabel
+					LabelOpenIssuesUrl = $labelOpenIssuesUrl
+				}
+				$labelStats += $stats
+			}
+
+			[PSCustomObject[]] $orderedLabelStats = $labelStats | Sort-Object -Property NumberOfIssuesWithThisLabel -Descending
+			return $orderedLabelStats
+		}
+
+		function Write-LabelStatsToMarkdownFile([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath, [int] $totalNumberOfOpenIssues, [int] $maxLabelsToShow)
+		{
+			[int] $numberOfLabels = $labelStats.Count
+
+			[System.Text.StringBuilder] $stringBuilder = [System.Text.StringBuilder]::new()
+			$stringBuilder.AppendLine("# Open Issues Label Stats For $RepositoryOwner/$RepositoryName") > $null
+			$stringBuilder.AppendLine() > $null
+			$stringBuilder.AppendLine("Repository: [$RepositoryOwner/$RepositoryName]($baseRepoUrl)") > $null
+			$stringBuilder.AppendLine() > $null
+			$stringBuilder.AppendLine("Total number of open issues: $totalNumberOfOpenIssues") > $null
+			$stringBuilder.AppendLine() > $null
+			$stringBuilder.AppendLine("Total number of labels: $numberOfLabels") > $null
+			$stringBuilder.AppendLine() > $null
+			$stringBuilder.AppendLine("## Open Issues By Label") > $null
+			$stringBuilder.AppendLine() > $null
+
+			if ($numberOfLabels -gt $maxLabelsToShow)
+			{
+				$stringBuilder.AppendLine("Note: Only the top $maxLabelsToShow labels are shown here.") > $null
+				$stringBuilder.AppendLine() > $null
+			}
+
+			$stringBuilder.AppendLine("| Label | Number of Open Issues | Percentage of Open Issues |") > $null
+			$stringBuilder.AppendLine("| ----- | --------------------- | ------------------------- |") > $null
+			[int] $numberOfLabelsShown = 0
+			foreach ($labelStat in $labelStats)
+			{
+				$stringBuilder.AppendLine("| [$($labelStat.LabelName)]($($labelStat.LabelOpenIssuesUrl)) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% |") > $null
+
+				# Make sure we don't show more labels than the maximum number specified.
+				$numberOfLabelsShown++
+				if ($numberOfLabelsShown -ge $maxLabelsToShow)
+				{
+					break
+				}
+			}
+
+			Out-File -FilePath $markdownFilePath -InputObject $stringBuilder.ToString() -Force -NoNewline
+		}
 	}
 }
