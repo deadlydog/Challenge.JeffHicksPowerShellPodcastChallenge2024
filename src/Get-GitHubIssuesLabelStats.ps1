@@ -25,7 +25,7 @@ Process
 	[string] $gitHubRepoBaseUrl = "https://github.com/$RepositoryOwner/$RepositoryName"
 	Test-GitHubRepository -repoUrl $gitHubRepoBaseUrl
 
-	[PSCustomObject[]] $openIssues = Get-GitHubOpenIssues -owner $RepositoryOwner -repo $RepositoryName
+	[PSCustomObject[]] $openIssues = Get-GitHubReposOpenIssues -owner $RepositoryOwner -repo $RepositoryName
 	[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
 
 	[int] $totalNumberOfOpenIssues = $openIssues.Count
@@ -54,7 +54,7 @@ Begin
 		}
 	}
 
-	function Get-GitHubOpenIssues([string] $owner, [string] $repo)
+	function Get-GitHubReposOpenIssues([string] $owner, [string] $repo)
 	{
 		[string] $uri = "https://api.github.com/repos/$owner/$repo/issues?state=open"
 		[hashtable] $headers = @{
