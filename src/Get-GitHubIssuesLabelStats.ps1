@@ -62,10 +62,17 @@ Begin
 {
 	function Test-GitHubRepository([string] $repoUrl)
 	{
-		$response = Invoke-WebRequest -Uri $repoUrl -UseBasicParsing
-		if ($response.StatusCode -ne 200)
+		try
 		{
-			throw "The GitHub repository at '$repoUrl' could not be found or we do not have permission to access it. Please check the owner and repository name and try again."
+			$response = Invoke-WebRequest -Uri $repoUrl -UseBasicParsing -ErrorAction SilentlyContinue
+			if ($response.StatusCode -ne 200)
+			{
+				throw "The status code returned was '$($response.StatusCode)'."
+			}
+		}
+		catch
+		{
+			throw "The GitHub repository at '$repoUrl' could not be found or we do not have permission to access it. Please check the owner and repository name and try again. Error message: $($_.Exception.Message)"
 		}
 	}
 
