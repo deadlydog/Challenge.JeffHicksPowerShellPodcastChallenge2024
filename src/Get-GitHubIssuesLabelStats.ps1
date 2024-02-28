@@ -23,11 +23,16 @@ Param
 Process
 {
 	[string] $gitHubRepoBaseUrl = "https://github.com/$RepositoryOwner/$RepositoryName"
+	Write-Information "Ensuring the GitHub repository '$gitHubRepoBaseUrl' is valid and we have access to it..."
 	Test-GitHubRepository -repoUrl $gitHubRepoBaseUrl
 
+	Write-Information "Retrieving all open GitHub issues for the repo..."
 	[PSCustomObject[]] $openIssues = Get-GitHubReposOpenIssues -owner $RepositoryOwner -repo $RepositoryName
+
+	Write-Information "Grouping the open issues by label..."
 	[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
 
+	Write-Information "Calculating the label stats..."
 	[hashtable] $getLabelsParams = @{
 		labelsDictionary = $labelsDictionary
 		totalNumberOfOpenIssues = $openIssues.Count
@@ -35,6 +40,7 @@ Process
 	}
 	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel @getLabelsParams
 
+	Write-Information "Writing the label stats to the markdown file..."
 	[hashtable] $writeLabelsParams = @{
 		labelStats = $labelStats
 		baseRepoUrl = $gitHubRepoBaseUrl
@@ -43,12 +49,13 @@ Process
 	}
 	Write-LabelStatsToMarkdownFile @writeLabelsParams
 
-	Write-Output "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
-
 	if ($ShowMarkdownInBrowser)
 	{
+		Write-Information "Opening the output markdown file in the default browser..."
 		Show-Markdown -Path $OutputMarkdownFilePath -UseBrowser
 	}
+
+	Write-Output "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
 }
 
 Begin

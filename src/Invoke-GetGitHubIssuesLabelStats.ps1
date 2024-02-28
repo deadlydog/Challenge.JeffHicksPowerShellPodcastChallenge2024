@@ -10,4 +10,4 @@ $parameters = @{
 }
 
 # Invoke the script with the parameters.
-. "$PSScriptRoot\Get-GitHubIssuesLabelStats.ps1" @parameters
+. "$PSScriptRoot\Get-GitHubIssuesLabelStats.ps1" @parameters -InformationAction Continue
