@@ -43,8 +43,6 @@ Process
 
 Begin
 {
-	$InformationPreference = 'Continue'
-
 	function Test-GitHubRepository([string] $repoUrl)
 	{
 		$response = Invoke-WebRequest -Uri $repoUrl -UseBasicParsing
@@ -160,16 +158,4 @@ Begin
 
 		Out-File -FilePath $markdownFilePath -InputObject $stringBuilder.ToString() -Force -NoNewline
 	}
-
-	# Display the time that this script started running.
-	[DateTime] $startTime = Get-Date
-	Write-Verbose "Starting script at '$startTime'."
-}
-
-End
-{
-	# Display the time that this script finished running, and how long it took to run.
-	[DateTime] $finishTime = Get-Date
-	[TimeSpan] $elapsedTime = $finishTime - $startTime
-	Write-Verbose "Finished script at '$finishTime'. Took '$elapsedTime' to run."
 }
