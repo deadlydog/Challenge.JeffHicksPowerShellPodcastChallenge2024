@@ -23,6 +23,7 @@ Param
 Process
 {
 	[string] $gitHubRepoBaseUrl = "https://github.com/$RepositoryOwner/$RepositoryName"
+	Test-GitHubRepository -repoUrl $gitHubRepoBaseUrl
 
 	[PSCustomObject[]] $openIssues = Get-GitHubOpenIssues -owner $RepositoryOwner -repo $RepositoryName
 	[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
@@ -43,6 +44,15 @@ Process
 Begin
 {
 	$InformationPreference = 'Continue'
+
+	function Test-GitHubRepository([string] $repoUrl)
+	{
+		$response = Invoke-WebRequest -Uri $repoUrl -UseBasicParsing
+		if ($response.StatusCode -ne 200)
+		{
+			throw "The GitHub repository at '$repoUrl' could not be found or we do not have permission to access it. Please check the owner and repository name and try again."
+		}
+	}
 
 	function Get-GitHubOpenIssues([string] $owner, [string] $repo)
 	{
