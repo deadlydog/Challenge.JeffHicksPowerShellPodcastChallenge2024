@@ -101,9 +101,10 @@ Begin
 		$stringBuilder.AppendLine() > $null
 
 		$stringBuilder.AppendLine("| Label | Number of Open Issues | Percentage of Open Issues | Open Issues URL |") > $null
+		$stringBuilder.AppendLine("| ----- | --------------------- | ------------------------- | --------------- |") > $null
 		foreach ($labelStat in $labelStats)
 		{
-			$stringBuilder.AppendLine("| $($labelStat.LabelName) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% | [Open Issues]($($labelStat.LabelOpenIssuesUrl)) |") > $null
+			$stringBuilder.AppendLine("| $($labelStat.LabelName) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% | [Label's Open Issues]($($labelStat.LabelOpenIssuesUrl)) |") > $null
 		}
 
 		Out-File -FilePath $markdownFilePath -InputObject $stringBuilder.ToString() -Force
