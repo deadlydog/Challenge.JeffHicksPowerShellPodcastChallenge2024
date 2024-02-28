@@ -1,65 +1,30 @@
 # Template Git Repository
 
-A template repository that I start my git repos from with common boilerplate things already added.
-Anyone is welcome to use this template.
+My implementation of [Jeff Hicks' PowerShell Podcast 2024 challenge](https://gist.github.com/jdhitsolutions/36f16e9b2d89353cfa93edc8e4b5b3c3).
 
-## 💬 Description
+## The challenge
 
-A short description of what this project does.
+Below is a copy of the challenge from Jeff's Gist, in case it disappears in the future.
 
-## ❓ Why this exists
+### Base Challenge
 
-A short description of why this project exists.
-What use-case is it meant to solve?
+Using whatever tools and techniques you want, write a PowerShell function that will query the Issues section of a GitHub repository and create output showing the number of open issues by label and the percentage of all open issues.
+Remember that multiple labels may be used with an issue.
 
-## ✨ Features
+For example, if there are 54 open issues and the bug label is used 23 times, your output would show a count of 23 and a total percentage of 42.59 for the bug label.
 
-List the features of this project:
+The function should work for any GitHub repository, but test it with the PowerShell repository.
+Naturally, the function should follow community accepted best practices, have parameter validation, and proper error handling.
 
-- Feature 1
-- Feature 2
+### Bonus Challenges
 
-## 🚀 Quick start
+Once you have the function, add custom formatting to display the results in a table, including the repository name or path.
 
-A quick guide on how to get started with this project.
-Install a NuGet Package?
-A link to download the latest version from (releases page, PowerShell Gallery, etc)?
-Code snippets?
-Links to wiki or other documentation.
+Create an alternative view that will also display the repository and the label URI that GitHub uses to create a filtered page view.
 
-## ✋ How to contribute
+Finally, create a control script using the function to create a markdown report for the PowerShell repository showing the top 25 labels.
+The markdown report should have clickable links.
 
-Issues and Pull Requests are welcome.
-See [the Contributing page](docs/Contributing.md) for more details.
+You will most likely end up with several files to meet all the challenge requirements.
 
-## ⏪ Changelog
-
-See what's changed in the application over time by viewing [the changelog](Changelog.md).
-
-## ❤ Donate to support this project
-
-Buy me a [CANADIAN ITEM] for providing this [EXTENSION|APP|SCRIPT] open source and for free 🙂
-
-FOR A GENERIC DONATE LINK USE THIS BUTTON
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.me/deadlydogDan/5USD)
-
-FOR AN APP SPECIFIC DONATE LINK [GO HERE](https://www.paypal.com/cgi-bin/webscr?cmd=_button-management) AND CREATE A NEW BUTTON, THEN REPLACE THE `BUTTON_ID_GOES_HERE` WITH THE NEW BUTTON'S ID
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=BUTTON_ID_GOES_HERE)
-
-### ✔ Update boilerplate repo files
-
-While anyone is free to use this template, some of the content is specific to my personal information and how I like to structure my projects, so that information should be updated or removed.
-
-Files containing Dan's personal information that should be updated:
-
-- [License](/License.md): Update to match your project's license, and ensure it uses the correct name in the copyright.
-- [CODEOWNERS](/.github/CODEOWNERS): Update to match your project's maintainers, or remove this file.
-- [FUNDING](/.github/FUNDING.yml): Update to match your project's donation information, or remove this file.
-- [ReadMe](/ReadMe.md): Update with your project's information, and remove the Donate section or update it to not use Dan's links.
-
-Other boilerplate git repository files that should be reviewed and updated or removed as needed:
-
-- [Changelog](/Changelog.md): If you don't plan to track a changelog, remove this file and it's reference from the ReadMe.
-- [Contributing](/docs/Contributing.md): Update to match your project's contributing guidelines and complete the sections that need more information, or remove it.
-- [Architectural Decision Records](/docs/ArchitectureDecisionRecords/): Remove this directory if you don't plan to use ADRs, and it's reference from the Contributing page.
-- [bug_report](/.github/ISSUE_TEMPLATE/bug_report.md), [feature_request](/.github/ISSUE_TEMPLATE/feature_request.md), [pull_request_template](/.github/pull_request_template.md): Update the bug report, feature request, and pull request templates as needed to meet your requirements, or remove them.
+Hint: There's more than one way to access the GitHub API.
