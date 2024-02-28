@@ -1,4 +1,4 @@
-# This is a helper script for easily invoking the Get-GitHubIssuesLabelStats.ps1 function.
+# This is a helper script for easily invoking the Get-GitHubIssuesLabelStats function.
 
 Write-Information "Importing the script so we can invoke the function."
 . "$PSScriptRoot\Get-GitHubIssuesLabelStats.ps1"
