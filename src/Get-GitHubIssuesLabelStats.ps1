@@ -9,7 +9,7 @@ Param
 	[ValidateNotNullOrEmpty()]
 	[string] $RepositoryName = 'PowerShell',
 
-	[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create. If not specified, GitHubIssueLabelStats.md will be created in the same directory as this script.')]
+	[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create. If not specified, GitHubIssuesLabelStats.md will be created in the same directory as this script.')]
 	[string] $OutputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md",
 
 	[Parameter(Mandatory = $false, HelpMessage = 'The maximum number of labels to show in the output markdown file. Default value is 25.')]
