@@ -6,6 +6,7 @@ $parameters = @{
 	RepositoryName = 'PowerShell'
 	OutputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md"
 	MaximumNumberOfLabelsToShow = 25
+	ShowMarkdownInBrowser = $true
 }
 
 # Invoke the script with the parameters.

@@ -14,7 +14,10 @@ Param
 
 	[Parameter(Mandatory = $false, HelpMessage = 'The maximum number of labels to show in the output markdown file. Default value is 25.')]
 	[ValidateRange(1, 999999)]
-	[int] $MaximumNumberOfLabelsToShow = 25
+	[int] $MaximumNumberOfLabelsToShow = 25,
+
+	[Parameter(Mandatory = $false, HelpMessage = 'If specified, the output markdown file will be opened in the default browser.')]
+	[switch] $ShowMarkdownInBrowser
 )
 
 Process
@@ -30,7 +33,11 @@ Process
 	Write-LabelStatsToMarkdownFile -labelStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl -markdownFilePath $OutputMarkdownFilePath -maximumLabelsToShow $MaximumNumberOfLabelsToShow
 
 	Write-Output "The open issues label stats have been written to '$OutputMarkdownFilePath'."
-	Show-Markdown -Path $OutputMarkdownFilePath -UseBrowser
+
+	if ($ShowMarkdownInBrowser)
+	{
+		Show-Markdown -Path $OutputMarkdownFilePath -UseBrowser
+	}
 }
 
 Begin
