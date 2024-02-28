@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=powershell,visualstudiocode,visualstudio
 
 # Custom additions
-*/GitHubIssueLabelStats.md
+*/GitHubIssuesLabelStats.md
 
 ### PowerShell ###
 # Exclude packaged modules
