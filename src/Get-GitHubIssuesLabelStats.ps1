@@ -28,10 +28,20 @@ Process
 	[PSCustomObject[]] $openIssues = Get-GitHubReposOpenIssues -owner $RepositoryOwner -repo $RepositoryName
 	[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
 
-	[int] $totalNumberOfOpenIssues = $openIssues.Count
-	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel -labelsDictionary $labelsDictionary -totalNumberOfOpenIssues $totalNumberOfOpenIssues -baseRepoUrl $gitHubRepoBaseUrl
+	[hashtable] $getLabelsParams = @{
+		labelsDictionary = $labelsDictionary
+		totalNumberOfOpenIssues = $openIssues.Count
+		baseRepoUrl = $gitHubRepoBaseUrl
+	}
+	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel @getLabelsParams
 
-	Write-LabelStatsToMarkdownFile -labelStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl -markdownFilePath $OutputMarkdownFilePath -maxLabelsToShow $MaximumNumberOfLabelsToShow
+	[hashtable] $writeLabelsParams = @{
+		labelStats = $labelStats
+		baseRepoUrl = $gitHubRepoBaseUrl
+		markdownFilePath = $OutputMarkdownFilePath
+		maxLabelsToShow = $MaximumNumberOfLabelsToShow
+	}
+	Write-LabelStatsToMarkdownFile @writeLabelsParams
 
 	Write-Output "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
 
