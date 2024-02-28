@@ -56,13 +56,22 @@ Begin
 
 	function Get-GitHubReposOpenIssues([string] $owner, [string] $repo)
 	{
-		[string] $uri = "https://api.github.com/repos/$owner/$repo/issues?state=open"
+		[string] $uri = "https://api.github.com/repos/$owner/$repo/issues?state=open&per_page=100"
 		[hashtable] $headers = @{
 			'Accept' = 'application/json'
 		}
 
-		$response = Invoke-RestMethod -Uri $uri -Headers $headers
-		return $response
+		[PSCustomObject[]] $results = @()
+		do
+		{
+			$response = Invoke-WebRequest -Uri $uri -Headers $headers
+			$results += $response.Content | ConvertFrom-Json -Depth 99
+
+			[string] $uri = $response.RelationLink['next']
+			[bool] $hasNextPage = -Not [string]::IsNullOrWhiteSpace($uri)
+		} while ($hasNextPage)
+
+		return $results
 	}
 
 	function Get-IssuesGroupedByLabel([PSCustomObject[]] $issues)
