@@ -12,13 +12,14 @@ Param
 
 Process
 {
-	[string] $gitHubRepoBaseUrl = "https://github.com/$owner/$repo"
+	[string] $gitHubRepoBaseUrl = "https://github.com/$RepositoryOwner/$RepositoryName"
 
 	[PSCustomObject[]] $openIssues = Get-GitHubOpenIssues -owner $RepositoryOwner -repo $RepositoryName
 	[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
 
 	[int] $totalNumberOfOpenIssues = $openIssues.Count
 	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel -labelsDictionary $labelsDictionary -totalNumberOfOpenIssues $totalNumberOfOpenIssues -baseRepoUrl $gitHubRepoBaseUrl
+
 	Write-LabelStats -issueStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl
 }
 
