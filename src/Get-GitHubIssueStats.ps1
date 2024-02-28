@@ -12,11 +12,14 @@ Param
 
 Process
 {
+	[string] $gitHubRepoBaseUrl = "https://github.com/$owner/$repo"
+
 	[PSCustomObject[]] $openIssues = Get-GitHubOpenIssues -owner $RepositoryOwner -repo $RepositoryName
 	[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
 
 	[int] $totalNumberOfOpenIssues = $openIssues.Count
-	Write-IssueStatsPerLabel -labelsDictionary $labelsDictionary -totalNumberOfOpenIssues $totalNumberOfOpenIssues
+	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel -labelsDictionary $labelsDictionary -totalNumberOfOpenIssues $totalNumberOfOpenIssues -baseRepoUrl $gitHubRepoBaseUrl
+	Write-LabelStats -issueStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl
 }
 
 Begin
@@ -55,8 +58,9 @@ Begin
 		return $labelsDictionary
 	}
 
-	function Write-IssueStatsPerLabel([hashtable] $labelsDictionary, [int] $totalNumberOfOpenIssues)
+	function Get-IssueStatsByLabel([hashtable] $labelsDictionary, [int] $totalNumberOfOpenIssues, [string] $baseRepoUrl)
 	{
+		[PSCustomObject[]] $labelStats = @()
 		$labelsDictionary.GetEnumerator() | ForEach-Object {
 			$label = $_
 			$labelName = $label.Name
@@ -65,8 +69,24 @@ Begin
 			$numberOfIssuesWithThisLabel = $labelIssues.Count
 			$percentageOfIssuesWithThisLabel = [math]::Round(($numberOfIssuesWithThisLabel / $totalNumberOfOpenIssues) * 100, 2)
 
-			Write-Output "Label: $labelName, Number of Issues: $numberOfIssuesWithThisLabel, Percentage of Total: $percentageOfIssuesWithThisLabel%"
+			$labelOpenIssuesUrl = [System.Uri]::EscapeUriString("$baseRepoUrl/issues?q=is:open+is:issue+label:$labelName")
+
+			$stats = [PSCustomObject] @{
+				LabelName = $labelName
+				NumberOfIssuesWithThisLabel = $numberOfIssuesWithThisLabel
+				PercentageOfIssuesWithThisLabel = $percentageOfIssuesWithThisLabel
+				LabelOpenIssuesUrl = $labelOpenIssuesUrl
+			}
+			$labelStats += $stats
 		}
+
+		return $labelStats
+	}
+
+	function Write-LabelStats([PSCustomObject[]] $issueStats, [string] $baseRepoUrl)
+	{
+		Write-Output "The number of issues by label for the repository '$baseRepoUrl':"
+		$issueStats | Format-Table -AutoSize
 	}
 
 	# Display the time that this script started running.
