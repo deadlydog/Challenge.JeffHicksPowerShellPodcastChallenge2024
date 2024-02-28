@@ -27,7 +27,7 @@ function Get-GitHubIssuesLabelStats
 		[ValidateNotNullOrEmpty()]
 		[string] $RepositoryName,
 
-		[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create. If not specified, GitHubIssuesLabelStats.md will be created in the same directory as this script.')]
+		[Parameter(Mandatory = $false, HelpMessage = 'The path to the output markdown file to create.')]
 		[ValidateNotNullOrEmpty()]
 		[string] $OutputMarkdownFilePath,
 
