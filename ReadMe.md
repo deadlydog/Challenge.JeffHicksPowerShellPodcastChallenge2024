@@ -1,6 +1,6 @@
 # PowerShell Podcast 2024 Challenge Implementation
 
-My implementation of [Jeff Hicks' PowerShell Podcast 2024 challenge](https://gist.github.com/jdhitsolutions/36f16e9b2d89353cfa93edc8e4b5b3c3).
+This repo is my implementation of [Jeff Hicks' PowerShell Podcast 2024 challenge](https://gist.github.com/jdhitsolutions/36f16e9b2d89353cfa93edc8e4b5b3c3).
 
 ## 🚀 Running the code
 
