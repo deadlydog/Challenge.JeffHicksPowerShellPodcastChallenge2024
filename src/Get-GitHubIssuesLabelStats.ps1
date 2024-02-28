@@ -31,7 +31,7 @@ Process
 	[int] $totalNumberOfOpenIssues = $openIssues.Count
 	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel -labelsDictionary $labelsDictionary -totalNumberOfOpenIssues $totalNumberOfOpenIssues -baseRepoUrl $gitHubRepoBaseUrl
 
-	Write-LabelStatsToMarkdownFile -labelStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl -markdownFilePath $OutputMarkdownFilePath -maximumLabelsToShow $MaximumNumberOfLabelsToShow
+	Write-LabelStatsToMarkdownFile -labelStats $labelStats -baseRepoUrl $gitHubRepoBaseUrl -markdownFilePath $OutputMarkdownFilePath -maxLabelsToShow $MaximumNumberOfLabelsToShow
 
 	Write-Output "The open issues label stats for '$gitHubRepoBaseUrl' have been written to '$OutputMarkdownFilePath'."
 
@@ -121,8 +121,10 @@ Begin
 		return $orderedLabelStats
 	}
 
-	function Write-LabelStatsToMarkdownFile([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath, [int] $maximumLabelsToShow)
+	function Write-LabelStatsToMarkdownFile([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath, [int] $maxLabelsToShow)
 	{
+		[int] $numberOfLabels = $labelStats.Count
+
 		[System.Text.StringBuilder] $stringBuilder = [System.Text.StringBuilder]::new()
 		$stringBuilder.AppendLine("# Open Issues Stats For $RepositoryOwner/$RepositoryName") > $null
 		$stringBuilder.AppendLine() > $null
@@ -130,8 +132,16 @@ Begin
 		$stringBuilder.AppendLine() > $null
 		$stringBuilder.AppendLine("Total number of open issues: $totalNumberOfOpenIssues") > $null
 		$stringBuilder.AppendLine() > $null
+		$stringBuilder.AppendLine("Total number of labels: $numberOfLabels") > $null
+		$stringBuilder.AppendLine() > $null
 		$stringBuilder.AppendLine("## Open Issues By Label") > $null
 		$stringBuilder.AppendLine() > $null
+
+		if ($numberOfLabels -gt $maxLabelsToShow)
+		{
+			$stringBuilder.AppendLine("Note: Only the top $maxLabelsToShow labels are shown here.") > $null
+			$stringBuilder.AppendLine() > $null
+		}
 
 		$stringBuilder.AppendLine("| Label | Number of Open Issues | Percentage of Open Issues | Open Issues URL |") > $null
 		$stringBuilder.AppendLine("| ----- | --------------------- | ------------------------- | --------------- |") > $null
@@ -142,7 +152,7 @@ Begin
 
 			# Make sure we don't show more labels than the maximum number specified.
 			$numberOfLabelsShown++
-			if ($numberOfLabelsShown -ge $maximumLabelsToShow)
+			if ($numberOfLabelsShown -ge $maxLabelsToShow)
 			{
 				break
 			}
