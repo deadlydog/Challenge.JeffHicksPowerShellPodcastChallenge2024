@@ -107,7 +107,7 @@ Begin
 			$stringBuilder.AppendLine("| $($labelStat.LabelName) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% | [Label's Open Issues]($($labelStat.LabelOpenIssuesUrl)) |") > $null
 		}
 
-		Out-File -FilePath $markdownFilePath -InputObject $stringBuilder.ToString() -Force
+		Out-File -FilePath $markdownFilePath -InputObject $stringBuilder.ToString() -Force -NoNewline
 		Show-Markdown -Path $markdownFilePath
 	}
 
