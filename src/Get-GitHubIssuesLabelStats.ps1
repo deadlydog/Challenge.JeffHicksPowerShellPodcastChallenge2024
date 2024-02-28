@@ -129,7 +129,7 @@ Begin
 		[int] $numberOfLabelsShown = 0
 		foreach ($labelStat in $labelStats)
 		{
-			$stringBuilder.AppendLine("| $($labelStat.LabelName) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% | [Label's Open Issues]($($labelStat.LabelOpenIssuesUrl)) |") > $null
+			$stringBuilder.AppendLine("| $($labelStat.LabelName) | $($labelStat.NumberOfIssuesWithThisLabel) | $($labelStat.PercentageOfIssuesWithThisLabel)% | [$($labelStat.LabelName) open issues]($($labelStat.LabelOpenIssuesUrl)) |") > $null
 
 			# Make sure we don't show more labels than the maximum number specified.
 			$numberOfLabelsShown++
