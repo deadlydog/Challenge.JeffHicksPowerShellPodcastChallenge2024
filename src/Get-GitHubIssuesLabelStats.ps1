@@ -28,6 +28,7 @@ Process
 
 	Write-Information "Retrieving all open GitHub issues for the repo..."
 	[PSCustomObject[]] $openIssues = Get-GitHubReposOpenIssues -owner $RepositoryOwner -repo $RepositoryName
+	[int] $totalNumberOfOpenIssues = $openIssues.Count
 
 	Write-Information "Grouping the open issues by label..."
 	[hashtable] $labelsDictionary = Get-IssuesGroupedByLabel -issues $openIssues
@@ -35,7 +36,7 @@ Process
 	Write-Information "Calculating the label stats..."
 	[hashtable] $getLabelsParams = @{
 		labelsDictionary = $labelsDictionary
-		totalNumberOfOpenIssues = $openIssues.Count
+		totalNumberOfOpenIssues = $totalNumberOfOpenIssues
 		baseRepoUrl = $gitHubRepoBaseUrl
 	}
 	[PSCustomObject[]] $labelStats = Get-IssueStatsByLabel @getLabelsParams
@@ -45,6 +46,7 @@ Process
 		labelStats = $labelStats
 		baseRepoUrl = $gitHubRepoBaseUrl
 		markdownFilePath = $OutputMarkdownFilePath
+		totalNumberOfOpenIssues = $totalNumberOfOpenIssues
 		maxLabelsToShow = $MaximumNumberOfLabelsToShow
 	}
 	Write-LabelStatsToMarkdownFile @writeLabelsParams
@@ -156,7 +158,7 @@ Begin
 		return $orderedLabelStats
 	}
 
-	function Write-LabelStatsToMarkdownFile([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath, [int] $maxLabelsToShow)
+	function Write-LabelStatsToMarkdownFile([PSCustomObject[]] $labelStats, [string] $baseRepoUrl, [string] $markdownFilePath, [int] $totalNumberOfOpenIssues, [int] $maxLabelsToShow)
 	{
 		[int] $numberOfLabels = $labelStats.Count
 
