@@ -6,6 +6,7 @@ $parameters = @{
 	RepositoryName = 'PowerShell'
 	OutputMarkdownFilePath = "$PSScriptRoot\GitHubIssuesLabelStats.md"
 	MaximumNumberOfLabelsToShow = 25
+	WriteResultsTableToConsole = $true
 	ShowMarkdownInBrowser = $true
 }
 
