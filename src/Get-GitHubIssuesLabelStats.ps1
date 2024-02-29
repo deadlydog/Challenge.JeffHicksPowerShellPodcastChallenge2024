@@ -7,6 +7,18 @@ function Get-GitHubIssuesLabelStats
 	.DESCRIPTION
 		Retrieves all open issues for a GitHub repository and groups them by label, then calculates the label stats, optionally writes them to a markdown file, and then returns them.
 
+	.PARAMETER RepositoryOwner
+		The owner of the GitHub repository to query. e.g. deadlydog in the deadlydog/PowerShell.tiPS repository.
+
+	.PARAMETER RepositoryName
+		The name of the GitHub repository to query. e.g. PowerShell.tiPS in the deadlydog/PowerShell.tiPS repository.
+
+	.PARAMETER OutputMarkdownFilePath
+		The path to the output markdown file to create. If not provided, a markdown file will not be created.
+
+	.PARAMETER MaximumNumberOfLabelsToShow
+		The maximum number of labels to show in the output markdown file. Default value is 25.
+
 	.EXAMPLE
 		PS> Get-GitHubIssuesLabelStats -RepositoryOwner deadlydog -RepositoryName PowerShell.tiPS -OutputMarkdownFilePath "$PSScriptRoot\GitHubIssuesLabelStats.md"
 
