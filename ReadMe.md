@@ -10,6 +10,7 @@ Open the [Invoke-GetGitHubIssuesLabelStats.ps1](/src/Invoke-GetGitHubIssuesLabel
 This will generate a markdown file in the [src](/src) directory with the label statistics for the PowerShell repository.
 You can then preview the markdown file in VS Code.
 If not using GitHub Codespaces, it will also open the markdown file in your default web browser.
+The results are also written to the console, and could be piped to other cmdlets if desired.
 
 Feel free to change the parameters to test it with different repositories.
 
